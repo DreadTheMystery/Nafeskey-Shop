@@ -358,3 +358,113 @@ function searchProducts(query) {
   );
   displayProducts(filtered);
 }
+
+// Footer functionality
+document.addEventListener("DOMContentLoaded", function () {
+  // Footer cart link functionality
+  const footerCartLink = document.getElementById("footer-cart-link");
+  if (footerCartLink) {
+    footerCartLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      cartModal.style.display = "block";
+    });
+  }
+
+  // Footer category links functionality
+  const footerCategoryLinks = document.querySelectorAll(
+    ".footer-links a[data-category]"
+  );
+  footerCategoryLinks.forEach((link) => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      const category = this.getAttribute("data-category");
+
+      // Scroll to products section
+      document.getElementById("products").scrollIntoView({
+        behavior: "smooth",
+      });
+
+      // Filter products by category after a short delay
+      setTimeout(() => {
+        filterProducts(category);
+
+        // Update active filter button
+        document.querySelectorAll(".filter-btn").forEach((btn) => {
+          btn.classList.remove("active");
+          if (btn.getAttribute("data-category") === category) {
+            btn.classList.add("active");
+          }
+        });
+      }, 500);
+    });
+  });
+
+  // Add smooth scrolling for all footer internal links
+  const footerInternalLinks = document.querySelectorAll(
+    '.footer-links a[href^="#"]'
+  );
+  footerInternalLinks.forEach((link) => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      const targetId = this.getAttribute("href").substring(1);
+      const targetElement = document.getElementById(targetId);
+
+      if (targetElement) {
+        targetElement.scrollIntoView({
+          behavior: "smooth",
+        });
+      }
+    });
+  });
+
+  // Add click-to-copy functionality for contact info
+  const contactLinks = document.querySelectorAll(
+    '.footer-links a[href^="tel:"], .footer-links a[href^="mailto:"]'
+  );
+  contactLinks.forEach((link) => {
+    link.addEventListener("click", function (e) {
+      // Allow normal behavior but also show a toast
+      const text = this.href.replace("tel:", "").replace("mailto:", "");
+      showToast(`Contact info copied: ${text}`, "success");
+    });
+  });
+});
+
+// Helper function to show toast notifications (if not already defined)
+function showToast(message, type = "success") {
+  // Create toast container if it doesn't exist
+  let toastContainer = document.getElementById("toast-container");
+  if (!toastContainer) {
+    toastContainer = document.createElement("div");
+    toastContainer.id = "toast-container";
+    toastContainer.style.cssText = `
+      position: fixed;
+      top: 90px;
+      right: 20px;
+      z-index: 3000;
+    `;
+    document.body.appendChild(toastContainer);
+  }
+
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  toast.style.cssText = `
+    background: ${
+      type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#f59e0b"
+    };
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease;
+  `;
+
+  toastContainer.appendChild(toast);
+
+  // Remove toast after 3 seconds
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
