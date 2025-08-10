@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nafeskey Shop - Your Online Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -31,12 +34,56 @@
 
     <!-- Hero Section -->
     <section id="home" class="hero">
+        <div class="hero-background">
+            <div class="hero-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
+        </div>
         <div class="hero-content">
-            <h1>Welcome to Nafeskey Shop</h1>
-            <p>Discover amazing products at great prices</p>
-            <button class="cta-btn" onclick="document.getElementById('products').scrollIntoView()">
-                Shop Now
-            </button>
+            <div class="hero-text">
+                <h1 class="hero-title">
+                    <span class="title-main">NAFESKEY</span>
+                    <span class="title-sub">SHOP</span>
+                </h1>
+                <p class="hero-subtitle">Discover Exclusive Products & Premium Collections</p>
+                <div class="hero-buttons">
+                    <button class="cta-btn primary" onclick="document.getElementById('products').scrollIntoView()">
+                        <i class="fas fa-shopping-bag"></i>
+                        Shop Collection
+                    </button>
+                    <button class="cta-btn secondary" onclick="document.getElementById('products').scrollIntoView()">
+                        <i class="fas fa-star"></i>
+                        Featured Items
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">500+</span>
+                        <span class="stat-label">Products</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">50K+</span>
+                        <span class="stat-label">Happy Customers</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Support</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="floating-card">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="floating-card delay-1">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="floating-card delay-2">
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
         </div>
     </section>
 
