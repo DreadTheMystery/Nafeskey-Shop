@@ -17,7 +17,7 @@ const navLinks = document.querySelector(".nav-links");
 
 // State
 let products = [];
-let cart = JSON.parse(localStorage.getItem("nafeskey-cart")) || [];
+let cart = JSON.parse(localStorage.getItem("nafsykay-collection-cart")) || [];
 let currentCategory = "all";
 
 // Initialize
@@ -218,7 +218,7 @@ function clearCart() {
 }
 
 function saveCart() {
-  localStorage.setItem("nafeskey-cart", JSON.stringify(cart));
+  localStorage.setItem("nafsykay-collection-cart", JSON.stringify(cart));
 }
 
 function updateCartUI() {
@@ -312,7 +312,7 @@ function checkoutWhatsApp() {
   message += `Total: ₦${total.toLocaleString()}\n\n`;
   message += "Please confirm availability and payment details. Thank you!";
 
-  const whatsappNumber = "2348000000000"; // Replace with your WhatsApp number
+  const whatsappNumber = "2348169200077"; // Nafsykay Collection WhatsApp number
   const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     message
   )}`;

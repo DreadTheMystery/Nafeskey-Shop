@@ -4,90 +4,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Nafeskey Shop</title>
+    <title>Admin Panel - Nafsykay Collection</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
 <body>
-    <!-- Navigation -->
-    <nav class="navbar admin-nav">
-        <div class="nav-container">
-            <h1 class="logo">🛠️ Admin Panel</h1>
-            <div class="nav-links">
-                <a href="index.html">← Back to Shop</a>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1><i class="fas fa-shield-alt"></i> Admin Login</h1>
+                <p>Nafsykay Collection Admin Panel</p>
             </div>
-        </div>
-    </nav>
 
-    <div class="admin-container">
-        <!-- Add Product Form -->
-        <div class="admin-section">
-            <h2 id="form-title">Add New Product</h2>
-            <form id="product-form" class="product-form">
-                <input type="hidden" id="product-id">
-
+            <form id="login-form" class="login-form">
                 <div class="form-group">
-                    <label for="product-name">Product Name *</label>
-                    <input type="text" id="product-name" required placeholder="Enter product name">
+                    <label for="username">
+                        <i class="fas fa-user"></i> Username
+                    </label>
+                    <input type="text" id="username" required placeholder="Enter username">
                 </div>
 
                 <div class="form-group">
-                    <label for="product-price">Price (₦) *</label>
-                    <input type="number" id="product-price" required placeholder="0.00" step="0.01" min="0">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    <input type="password" id="password" required placeholder="Enter password">
                 </div>
 
-                <div class="form-group">
-                    <label for="product-category">Category</label>
-                    <select id="product-category">
-                        <option value="General">General</option>
-                        <option value="Electronics">Electronics</option>
-                        <option value="Clothing">Clothing</option>
-                        <option value="Books">Books</option>
-                        <option value="Sports">Sports</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="product-description">Description</label>
-                    <textarea id="product-description" placeholder="Product description (optional)" rows="3"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="product-image">Product Image *</label>
-                    <input type="file" id="product-image" accept="image/*" required>
-                    <div id="image-preview"></div>
-                </div>
-
-                <div class="form-buttons">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Save Product
-                    </button>
-                    <button type="button" id="cancel-edit" class="btn btn-secondary" style="display: none;">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Products Management -->
-        <div class="admin-section">
-            <div class="section-header">
-                <h2>Manage Products</h2>
-                <button id="refresh-products" class="btn btn-secondary">
-                    <i class="fas fa-sync-alt"></i> Refresh
+                <button type="submit" class="btn btn-primary login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
                 </button>
-            </div>
+            </form>
 
-            <div class="products-stats">
-                <div class="stat-card">
-                    <div class="stat-number" id="total-products">0</div>
-                    <div class="stat-label">Total Products</div>
+            <div class="login-info">
+                <p><i class="fas fa-info-circle"></i> Default credentials: admin / admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel (hidden initially) -->
+    <div id="admin-panel" class="admin-panel" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar admin-nav">
+            <div class="nav-container">
+                <h1 class="logo">🛠️ Admin Panel</h1>
+                <div class="nav-links">
+                    <span class="admin-welcome">Welcome, <span id="admin-username"></span></span>
+                    <a href="index.html">← Back to Collection</a>
+                    <button id="logout-btn" class="btn btn-secondary">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
                 </div>
             </div>
+        </nav>
 
-            <div id="admin-products-grid" class="admin-products-grid">
-                <div class="loading">Loading products...</div>
+        <div class="admin-container">
+            <!-- Add Product Form -->
+            <div class="admin-section">
+                <h2 id="form-title">Add New Product</h2>
+                <form id="product-form" class="product-form">
+                    <input type="hidden" id="product-id">
+
+                    <div class="form-group">
+                        <label for="product-name">Product Name *</label>
+                        <input type="text" id="product-name" required placeholder="Enter product name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product-price">Price (₦) *</label>
+                        <input type="number" id="product-price" required placeholder="0.00" step="0.01" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product-category">Category</label>
+                        <select id="product-category">
+                            <option value="Abaya">Abaya</option>
+                            <option value="Ankara">Ankara</option>
+                            <option value="Laces">Laces</option>
+                            <option value="Jallabiya">Jallabiya</option>
+                            <option value="Veils">Veils</option>
+                            <option value="Hijab">Hijab</option>
+                            <option value="Caps">Caps</option>
+                            <option value="Kampala">Kampala</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product-description">Description</label>
+                        <textarea id="product-description" placeholder="Product description (optional)"
+                            rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product-image">Product Image *</label>
+                        <input type="file" id="product-image" accept="image/*" required>
+                        <div id="image-preview"></div>
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Product
+                        </button>
+                        <button type="button" id="cancel-edit" class="btn btn-secondary" style="display: none;">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Products Management -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>Manage Products</h2>
+                    <button id="refresh-products" class="btn btn-secondary">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <div class="products-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-products">0</div>
+                        <div class="stat-label">Total Products</div>
+                    </div>
+                </div>
+
+                <div id="admin-products-grid" class="admin-products-grid">
+                    <div class="loading">Loading products...</div>
+                </div>
             </div>
         </div>
     </div>

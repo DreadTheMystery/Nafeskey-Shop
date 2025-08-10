@@ -4,9 +4,24 @@ const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
+const session = require("express-session");
+const bcrypt = require("bcryptjs");
 
 const app = express();
 const PORT = 3000;
+
+// Session configuration
+app.use(
+  session({
+    secret: "nafsykay-collection-secret-2024", // In production, use environment variable
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true in production with HTTPS
+      maxAge: 1000 * 60 * 60 * 24, // 24 hours
+    },
+  })
+);
 
 // Middleware
 app.use(cors());
@@ -41,6 +56,38 @@ db.serialize(() => {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
+
+  // Create admin users table
+  db.run(`
+        CREATE TABLE IF NOT EXISTS admin_users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+  // Create default admin user if none exists
+  db.get("SELECT COUNT(*) as count FROM admin_users", (err, row) => {
+    if (!err && row.count === 0) {
+      const defaultPassword = "admin123"; // Change this in production
+      bcrypt.hash(defaultPassword, 10, (err, hash) => {
+        if (!err) {
+          db.run(
+            "INSERT INTO admin_users (username, password) VALUES (?, ?)",
+            ["admin", hash],
+            (err) => {
+              if (!err) {
+                console.log(
+                  "✅ Default admin user created (username: admin, password: admin123)"
+                );
+              }
+            }
+          );
+        }
+      });
+    }
+  });
 });
 
 // Multer configuration for file uploads
@@ -74,11 +121,80 @@ const upload = multer({
   },
 });
 
+// Authentication middleware
+const requireAuth = (req, res, next) => {
+  if (req.session && req.session.isAdmin) {
+    return next();
+  } else {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+};
+
 // Routes
+
+// Authentication routes
+app.post("/api/admin/login", (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ error: "Username and password are required" });
+  }
+
+  db.get(
+    "SELECT * FROM admin_users WHERE username = ?",
+    [username],
+    (err, user) => {
+      if (err) {
+        return res.status(500).json({ error: "Database error" });
+      }
+
+      if (!user) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      bcrypt.compare(password, user.password, (err, isMatch) => {
+        if (err) {
+          return res.status(500).json({ error: "Authentication error" });
+        }
+
+        if (isMatch) {
+          req.session.isAdmin = true;
+          req.session.adminId = user.id;
+          req.session.username = user.username;
+          res.json({ message: "Login successful", username: user.username });
+        } else {
+          res.status(401).json({ error: "Invalid credentials" });
+        }
+      });
+    }
+  );
+});
+
+app.post("/api/admin/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: "Could not log out" });
+    }
+    res.json({ message: "Logout successful" });
+  });
+});
+
+app.get("/api/admin/check", (req, res) => {
+  if (req.session && req.session.isAdmin) {
+    res.json({
+      authenticated: true,
+      username: req.session.username,
+    });
+  } else {
+    res.json({ authenticated: false });
+  }
+});
 
 // Get all products
 app.get("/api/products", (req, res) => {
-  db.all("SELECT * FROM products ORDER BY created_at DESC", (err, rows) => {
+  db.all("SELECT * FROM products ORDER by created_at DESC", (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
     } else {
@@ -101,8 +217,8 @@ app.get("/api/products/:id", (req, res) => {
   });
 });
 
-// Add new product
-app.post("/api/products", upload.single("image"), (req, res) => {
+// Add new product (protected route)
+app.post("/api/products", requireAuth, upload.single("image"), (req, res) => {
   const { name, price, description, category } = req.body;
 
   if (!name || !price || !req.file) {
@@ -115,7 +231,7 @@ app.post("/api/products", upload.single("image"), (req, res) => {
 
   db.run(
     "INSERT INTO products (name, price, description, category, image) VALUES (?, ?, ?, ?, ?)",
-    [name, price, description || "", category || "General", image],
+    [name, price, description || "", category || "Abaya", image],
     function (err) {
       if (err) {
         res.status(500).json({ error: err.message });
@@ -134,38 +250,43 @@ app.post("/api/products", upload.single("image"), (req, res) => {
   );
 });
 
-// Update product
-app.put("/api/products/:id", upload.single("image"), (req, res) => {
-  const { id } = req.params;
-  const { name, price, description, category } = req.body;
+// Update product (protected route)
+app.put(
+  "/api/products/:id",
+  requireAuth,
+  upload.single("image"),
+  (req, res) => {
+    const { id } = req.params;
+    const { name, price, description, category } = req.body;
 
-  if (!name || !price) {
-    return res.status(400).json({ error: "Name and price are required" });
-  }
-
-  let query =
-    "UPDATE products SET name = ?, price = ?, description = ?, category = ?";
-  let params = [name, price, description || "", category || "General"];
-
-  if (req.file) {
-    query += ", image = ?";
-    params.push(`/uploads/${req.file.filename}`);
-  }
-
-  query += " WHERE id = ?";
-  params.push(id);
-
-  db.run(query, params, function (err) {
-    if (err) {
-      res.status(500).json({ error: err.message });
-    } else {
-      res.json({ message: "Product updated successfully!" });
+    if (!name || !price) {
+      return res.status(400).json({ error: "Name and price are required" });
     }
-  });
-});
 
-// Delete product
-app.delete("/api/products/:id", (req, res) => {
+    let query =
+      "UPDATE products SET name = ?, price = ?, description = ?, category = ?";
+    let params = [name, price, description || "", category || "Abaya"];
+
+    if (req.file) {
+      query += ", image = ?";
+      params.push(`/uploads/${req.file.filename}`);
+    }
+
+    query += " WHERE id = ?";
+    params.push(id);
+
+    db.run(query, params, function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+      } else {
+        res.json({ message: "Product updated successfully!" });
+      }
+    });
+  }
+);
+
+// Delete product (protected route)
+app.delete("/api/products/:id", requireAuth, (req, res) => {
   const { id } = req.params;
 
   // First get the product to delete the image file
@@ -203,9 +324,11 @@ app.use((error, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Nafeskey Shop Server running at http://localhost:${PORT}`);
+  console.log(
+    `🚀 Nafsykay Collection Server running at http://localhost:${PORT}`
+  );
   console.log(`📱 Admin Panel: http://localhost:${PORT}/admin.html`);
-  console.log(`🛍️ Shop: http://localhost:${PORT}`);
+  console.log(`🛍️ Collection: http://localhost:${PORT}`);
 });
 
 // Graceful shutdown

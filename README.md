@@ -1,10 +1,11 @@
-# 🛍️ Nafeskey Shop
+# 🛍️ Nafsykay Collection
 
 A modern, responsive e-commerce platform with a beautiful purple and black color scheme. Built with Node.js, Express, and SQLite for a seamless shopping experience.
 
 ## ✨ Features
 
 ### 🎨 Design & UI
+
 - **Beautiful Purple & Black Theme**: Modern gradient-based design with excellent contrast
 - **Responsive Layout**: Optimized for all devices (desktop, tablet, mobile)
 - **Enhanced Product Cards**: Large product images with compact, readable text
@@ -20,12 +21,22 @@ A modern, responsive e-commerce platform with a beautiful purple and black color
 - **WhatsApp Checkout**: Direct ordering through WhatsApp
 - **Image Optimization**: Fast loading with optimized product images
 
+### 🔐 Admin Authentication
+
+- **Secure Login System**: Session-based authentication for admin access
+- **Protected Routes**: All admin operations require authentication
+- **Session Management**: Automatic session timeout and logout functionality
+- **Password Security**: Encrypted password storage using bcrypt
+- **User Feedback**: Clear login/logout messages and error handling
+
 ### 🛠️ Admin Features
 
-- **Product Management**: Add, edit, and delete products
-- **Image Upload**: Upload product images with automatic processing
-- **Category Management**: Organize products into categories
-- **Real-time Updates**: See changes instantly
+- **Secure Product Management**: Add, edit, and delete products (authentication required)
+- **Protected Admin Panel**: Login required to access admin functionality
+- **Session Monitoring**: Automatic redirect to login when session expires
+- **Secure Image Upload**: Protected file upload with authentication
+- **Admin Dashboard**: Statistics and product management interface
+- **Real-time Updates**: See changes instantly after authentication
 - **Form Validation**: Prevent errors with built-in validation
 - **Statistics Dashboard**: Track your inventory with visual cards
 
@@ -66,6 +77,7 @@ A modern, responsive e-commerce platform with a beautiful purple and black color
 ## 🎯 Recent Enhancements
 
 ### Visual Improvements
+
 - **Purple & Black Color Scheme**: Cohesive design with beautiful gradients and proper contrast
 - **Larger Product Images**: Enhanced from 250px to 320px height for better product showcase
 - **Compact Text Layout**: Reduced font sizes and spacing for cleaner, more professional appearance
@@ -73,6 +85,7 @@ A modern, responsive e-commerce platform with a beautiful purple and black color
 - **Better Spacing**: Optimized margins and padding throughout the application
 
 ### User Experience
+
 - **Improved Navigation**: Smooth scrolling and interactive footer elements
 - **Mobile Optimization**: Better responsive design for all screen sizes
 - **Interactive Cart**: Enhanced shopping cart accessible from footer
@@ -80,6 +93,7 @@ A modern, responsive e-commerce platform with a beautiful purple and black color
 - **Loading States**: Better visual feedback and animations
 
 ### Technical Improvements
+
 - **Text Truncation**: Product descriptions limited to 2 lines for consistent card heights
 - **Enhanced Hover Effects**: Smooth transitions and purple glow effects
 - **Optimized Performance**: Reduced spacing and improved layout efficiency
@@ -98,22 +112,34 @@ A modern, responsive e-commerce platform with a beautiful purple and black color
 
 ### For Shop Owners (Admin)
 
-1. **Add Products**:
+1. **Login to Admin Panel**:
 
-   - Go to the Admin Panel
+   - Go to http://localhost:3000/admin.html
+   - Enter credentials (default: admin / admin123)
+   - Click "Login" to access the admin dashboard
+
+2. **Add Products**:
+
    - Fill in product details (name, price, category, description)
    - Upload a product image
    - Click "Save Product"
 
-2. **Manage Inventory**:
+3. **Manage Inventory**:
 
    - View all products in the admin dashboard
-   - Edit existing products
+   - Edit existing products by clicking the edit button
    - Delete products when out of stock
+   - Use the refresh button to reload the product list
 
-3. **Categories**:
+4. **Security**:
+
+   - Always logout when finished
+   - Sessions automatically expire for security
+   - Change default password in production
+
+5. **Categories**:
    - Products are automatically organized by categories
-   - Default categories: General, Electronics, Clothing, Books, Sports
+   - Default categories: Abaya, Ankara, Laces, Jallabiya, Veils, Hijab, Caps, Kampala
    - Add custom categories as needed
 
 ### For Customers
@@ -140,8 +166,8 @@ A modern, responsive e-commerce platform with a beautiful purple and black color
 
 Update the WhatsApp number in:
 
-- `public/script.js` (line 185): Replace `"2348000000000"` with your number
-- `public/index.html` (line 90): Update the WhatsApp float button URL
+- `public/script.js` (line 315): Replace with your WhatsApp number (currently: 2348169200077)
+- `public/index.html`: Update all WhatsApp links with your number
 
 ### Customization
 
@@ -152,7 +178,7 @@ Update the WhatsApp number in:
 ## 📁 Project Structure
 
 ```
-nafeskey-shop/
+nafsykay-collection/
 ├── server.js              # Express server
 ├── package.json           # Dependencies
 ├── shop.db               # SQLite database (auto-created)
@@ -165,12 +191,37 @@ nafeskey-shop/
     └── admin.js          # Admin functionality
 ```
 
-## 🔒 Security Features
+## 🔐 Security & Authentication
 
-- **File Upload Validation**: Only images allowed, size limits enforced
-- **Input Sanitization**: All inputs are validated
-- **Error Handling**: Graceful error handling prevents crashes
-- **CORS Protection**: Cross-origin requests properly configured
+### Admin Login Credentials
+
+**Default credentials (change in production):**
+
+- **Username**: `admin`
+- **Password**: `admin123`
+
+### Security Features
+
+- Session-based authentication with secure cookies
+- Password encryption using bcrypt
+- Protected API routes requiring authentication
+- Automatic session timeout
+- Secure file upload validation
+- CSRF protection through session tokens
+
+### Important Security Notes
+
+⚠️ **Production Deployment**:
+
+- Change the default admin password immediately
+- Use environment variables for session secrets
+- Enable HTTPS for secure cookie transmission
+- Implement rate limiting for login attempts
+- Consider adding two-factor authentication
+
+### Changing Admin Password
+
+Currently, you can change the password by directly updating the database. Future versions will include a password change interface.
 
 ## 🎨 Customization
 
@@ -207,4 +258,4 @@ Need help? Your shop includes:
 
 ---
 
-**Start selling your products today with Nafeskey Shop!** 🛍️
+**Start selling your products today with Nafsykay Collection!** 🛍️

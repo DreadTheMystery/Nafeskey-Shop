@@ -1,8 +1,21 @@
 // API Configuration
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api/products`;
+const AUTH_URL = `${API_BASE}/api/admin`;
 
-// DOM Elements
+// Authentication State
+let isAuthenticated = false;
+
+// DOM Elements - Authentication
+const loginScreen = document.getElementById("login-screen");
+const adminPanel = document.getElementById("admin-panel");
+const loginForm = document.getElementById("login-form");
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+const logoutBtn = document.getElementById("logout-btn");
+const adminUsernameEl = document.getElementById("admin-username");
+
+// DOM Elements - Admin Panel
 const productForm = document.getElementById("product-form");
 const productsGrid = document.getElementById("admin-products-grid");
 const formTitle = document.getElementById("form-title");
@@ -28,12 +41,114 @@ let productToDelete = null;
 
 // Initialize
 document.addEventListener("DOMContentLoaded", function () {
-  loadProducts();
+  checkAuthentication();
   setupEventListeners();
 });
 
+// Authentication Functions
+async function checkAuthentication() {
+  try {
+    const response = await fetch(`${AUTH_URL}/check`, {
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.authenticated) {
+        isAuthenticated = true;
+        adminUsernameEl.textContent = data.username;
+        showAdminPanel();
+        loadProducts();
+      } else {
+        showLoginScreen();
+      }
+    } else {
+      showLoginScreen();
+    }
+  } catch (error) {
+    console.error("Auth check failed:", error);
+    showLoginScreen();
+  }
+}
+
+function showLoginScreen() {
+  loginScreen.style.display = "flex";
+  adminPanel.style.display = "none";
+  isAuthenticated = false;
+}
+
+function showAdminPanel() {
+  loginScreen.style.display = "none";
+  adminPanel.style.display = "block";
+  isAuthenticated = true;
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value;
+
+  if (!username || !password) {
+    showToast("Please enter both username and password", "error");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${AUTH_URL}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      showToast(`Welcome back, ${data.username}!`, "success");
+      adminUsernameEl.textContent = data.username;
+      showAdminPanel();
+      loadProducts();
+
+      // Reset login form
+      loginForm.reset();
+    } else {
+      showToast(data.error || "Login failed", "error");
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    showToast("Login failed. Please try again.", "error");
+  }
+}
+
+async function handleLogout() {
+  try {
+    const response = await fetch(`${AUTH_URL}/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      showToast("Logged out successfully", "success");
+      showLoginScreen();
+    } else {
+      showToast("Logout failed", "error");
+    }
+  } catch (error) {
+    console.error("Logout error:", error);
+    showToast("Logout failed", "error");
+  }
+}
+
 // Event Listeners
 function setupEventListeners() {
+  // Authentication listeners
+  loginForm.addEventListener("submit", handleLogin);
+  logoutBtn.addEventListener("click", handleLogout);
+
+  // Admin panel listeners
   productForm.addEventListener("submit", handleFormSubmit);
   imageInput.addEventListener("change", handleImagePreview);
   cancelEditBtn.addEventListener("click", cancelEdit);
@@ -56,6 +171,12 @@ function setupEventListeners() {
 async function handleFormSubmit(e) {
   e.preventDefault();
 
+  if (!isAuthenticated) {
+    showToast("Please log in to continue", "error");
+    showLoginScreen();
+    return;
+  }
+
   const formData = new FormData();
   formData.append("name", nameInput.value.trim());
   formData.append("price", priceInput.value);
@@ -74,8 +195,15 @@ async function handleFormSubmit(e) {
 
     const response = await fetch(url, {
       method: method,
+      credentials: "include",
       body: formData,
     });
+
+    if (response.status === 401) {
+      showToast("Session expired. Please log in again.", "error");
+      showLoginScreen();
+      return;
+    }
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -249,10 +377,23 @@ function closeDeleteModal() {
 async function confirmDelete() {
   if (!productToDelete) return;
 
+  if (!isAuthenticated) {
+    showToast("Please log in to continue", "error");
+    showLoginScreen();
+    return;
+  }
+
   try {
     const response = await fetch(`${API_URL}/${productToDelete}`, {
       method: "DELETE",
+      credentials: "include",
     });
+
+    if (response.status === 401) {
+      showToast("Session expired. Please log in again.", "error");
+      showLoginScreen();
+      return;
+    }
 
     if (!response.ok) {
       const errorData = await response.json();
